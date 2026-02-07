@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Be My Valentine 💖</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to bottom, #8fd3f4, #fbc2eb);
+}
+
+/* =============== CLOUDS =============== */
+.cloud {
+    position: absolute;
+    background: white;
+    border-radius: 100px;
+    opacity: 0.7;
+    filter: blur(1px);
+    will-change: transform;
+}
+
+.cloud::before,
+.cloud::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+}
+
+.cloud::before {
+    width: 50%;
+    height: 50%;
+    top: -30%;
+    left: 10%;
+}
+
+.cloud::after {
+    width: 45%;
+    height: 45%;
+    top: -20%;
+    right: 10%;
+}
+
+/* =============== CARD =============== */
+.container {
+    position: relative;
+    z-index: 5;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    background: white;
+    padding: 40px 50px;
+    border-radius: 25px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    animation: float 4s ease-in-out infinite;
+    max-width: 90%;
+}
+
+@keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+}
+
+h1 {
+    color: #ff4d6d;
+    margin-bottom: 25px;
+}
+
+/* =============== BUTTONS =============== */
+.buttons {
+    position: relative;
+    height: 80px;
+}
+
+button {
+    padding: 12px 30px;
+    font-size: 18px;
+    border-radius: 25px;
+    border: none;
+    cursor: pointer;
+}
+
+#yesBtn {
+    background: #ff4d6d;
+    color: white;
+    transition: transform 0.25s ease;
+}
+
+#yesBtn:hover {
+    transform: scale(1.1);
+}
+
+#noBtn {
+    background: #e0e0e0;
+    position: fixed;
+    z-index: 20;
+}
+
+.message {
+    margin-top: 15px;
+    min-height: 24px;
+    color: #555;
+}
+
+.success {
+    font-size: 28px;
+    color: #ff4d6d;
+    animation: pop 0.5s ease;
+}
+
+@keyframes pop {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* =============== MUSIC BUTTON =============== */
+#musicToggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 16px;
+    border-radius: 20px;
+    border: none;
+    background: #ff4d6d;
+    color: white;
+    cursor: pointer;
+    display: none;
+    z-index: 30;
+}
+</style>
+</head>
+
+<body>
+
+<!-- =============== CLOUDS =============== -->
+<div class="cloud" data-depth="0.15" style="width:240px;height:70px;top:10%;left:10%"></div>
+<div class="cloud" data-depth="0.25" style="width:180px;height:55px;top:20%;left:60%"></div>
+<div class="cloud" data-depth="0.35" style="width:300px;height:90px;top:30%;left:30%"></div>
+<div class="cloud" data-depth="0.20" style="width:220px;height:65px;top:40%;left:80%"></div>
+<div class="cloud" data-depth="0.45" style="width:160px;height:50px;top:55%;left:20%"></div>
+<div class="cloud" data-depth="0.30" style="width:260px;height:80px;top:65%;left:50%"></div>
+<div class="cloud" data-depth="0.18" style="width:200px;height:60px;top:75%;left:70%"></div>
+<div class="cloud" data-depth="0.40" style="width:150px;height:45px;top:85%;left:35%"></div>
+
+<!-- =============== CARD =============== -->
+<div class="container">
+    <div class="card" id="card">
+        <h1>💖 Will you be my Valentine, Ishani? 💖</h1>
+
+        <div class="buttons">
+            <button id="yesBtn">Yes 💘</button>
+        </div>
+
+        <p class="message" id="msg">Are you sure? 🥺</p>
+    </div>
+</div>
+
+<button id="noBtn">No 🙅‍♀️</button>
+
+<audio id="bgMusic" preload="auto">
+    <source src="song.m4a" type="audio/mp4">
+</audio>
+
+<button id="musicToggle">🔊 Music</button>
+
+<script>
+const noBtn = document.getElementById("noBtn");
+const yesBtn = document.getElementById("yesBtn");
+const msg = document.getElementById("msg");
+const card = document.getElementById("card");
+const clouds = document.querySelectorAll(".cloud");
+const music = document.getElementById("bgMusic");
+const musicBtn = document.getElementById("musicToggle");
+
+const messages = [
+    "Are you sure? 🥺",
+    "Think again 😢",
+    "My heart is cracking 💔",
+    "Last chance 😭",
+    "Okay now you're teasing 😤"
+];
+
+let count = 0;
+let musicPlaying = false;
+
+/* PLACE NO BUTTON */
+function placeNoButton() {
+    const rect = yesBtn.getBoundingClientRect();
+    noBtn.style.left = rect.right + 20 + "px";
+    noBtn.style.top = rect.top + "px";
+}
+placeNoButton();
+
+/* MOVE NO BUTTON */
+function moveNoButton() {
+    const padding = 20;
+    const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+    const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+
+    noBtn.style.left = Math.random() * maxX + "px";
+    noBtn.style.top = Math.random() * maxY + "px";
+
+    msg.textContent = messages[count % messages.length];
+    count++;
+    yesBtn.style.transform = `scale(${1 + count * 0.05})`;
+}
+
+noBtn.addEventListener("mouseenter", moveNoButton);
+noBtn.addEventListener("click", moveNoButton);
+noBtn.addEventListener("touchstart", moveNoButton);
+
+/* MUSIC */
+function fadeInMusic() {
+    music.volume = 0;
+    music.play();
+    musicBtn.style.display = "block";
+    musicPlaying = true;
+
+    let vol = 0;
+    const fade = setInterval(() => {
+        if (vol < 0.6) {
+            vol += 0.02;
+            music.volume = vol;
+        } else clearInterval(fade);
+    }, 100);
+}
+
+musicBtn.addEventListener("click", () => {
+    if (musicPlaying) {
+        music.pause();
+        musicBtn.textContent = "🔇 Music";
+    } else {
+        music.play();
+        musicBtn.textContent = "🔊 Music";
+    }
+    musicPlaying = !musicPlaying;
+});
+
+yesBtn.addEventListener("click", () => {
+    fadeInMusic();
+    card.innerHTML = `
+        <div class="success">
+            🎉 YAYYY!! 💕<br><br>
+            You are officially my Valentine 😍<br>
+            Best decision ever 💖🌹
+        </div>
+    `;
+    noBtn.style.display = "none";
+});
+
+/* =============== CLOUD PARALLAX (DESKTOP + MOBILE) =============== */
+let targetX = 0, targetY = 0;
+let currentX = 0, currentY = 0;
+
+document.addEventListener("mousemove", (e) => {
+    targetX = (e.clientX / window.innerWidth - 0.5) * 60;
+    targetY = (e.clientY / window.innerHeight - 0.5) * 40;
+});
+
+document.addEventListener("touchmove", (e) => {
+    if (e.touches.length > 0) {
+        targetX = (e.touches[0].clientX / window.innerWidth - 0.5) * 40;
+        targetY = (e.touches[0].clientY / window.innerHeight - 0.5) * 30;
+    }
+});
+
+function animateClouds() {
+    currentX += (targetX - currentX) * 0.08;
+    currentY += (targetY - currentY) * 0.08;
+
+    clouds.forEach(cloud => {
+        const depth = cloud.dataset.depth;
+        cloud.style.transform = `translate(${currentX * depth}px, ${currentY * depth}px)`;
+    });
+
+    requestAnimationFrame(animateClouds);
+}
+animateClouds();
+
+window.addEventListener("resize", placeNoButton);
+</script>
+
+</body>
+</html>
